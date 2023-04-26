@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  # api:
+  #   build: .
+  #   ports:
+  #     - "3000:3000"
+
+  db1:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: root01
+      POSTGRES_PASSWORD: root01
+      POSTGRES_DB: db1
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db1data:/var/lib/postgresql/data
+
+  db2:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: root02
+      POSTGRES_PASSWORD: root02
+      POSTGRES_DB: db2
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./db2data:/var/lib/postgresql/data
