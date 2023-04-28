@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  # api:
+  #   build: .
+  #   ports:
+  #     - "3000:3000"
+
+  db1:
+    container_name: db1
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: db1
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-project-base:/db1/var/lib/postgresql/data
+
+  db2:
+    container_name: db2
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: db2
+    ports:
+      - "5433:5432"
+    volumes:
+      - db-project-base:/db2/var/lib/postgresql/data
+volumes:
+  db-project-base:

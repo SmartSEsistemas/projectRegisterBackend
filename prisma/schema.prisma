@@ -1,0 +1,44 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_01_URL")
+}
+
+model User {
+  id             Int             @id @default(autoincrement())
+  password       String
+  Natural_person Natural_person? @relation(fields: [document], references: [cpf], map: "natural_person_fk")
+  Legal_person   Legal_person?   @relation(fields: [document], references: [cnpj], map: "legal_person_fk")
+  document       String          @unique
+
+  @@map("users")
+}
+
+model Natural_person {
+  id         Int      @id @default(autoincrement())
+  name       String
+  cpf        String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  User       User?
+
+  // Add entity
+  @@map("cadastro_natural_persons")
+}
+
+model Legal_person {
+  id         Int      @id @default(autoincrement())
+  name       String
+  cnpj       String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  User       User?
+
+  @@map("cadastro_legal_persons")
+}
