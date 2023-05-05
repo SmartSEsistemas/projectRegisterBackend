@@ -1,19 +1,27 @@
 import "express-async-errors";
-import express, {NextFunction, Request, Response} from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import routes from './routes/index.js';
 import { AppError } from './helper/AppError.js';
 import prismaInstance from './prisma/client.js';
+import swaggerUi from 'swagger-ui-express';
+import fs from 'fs';
+
+const swaggerJson = fs.readFileSync('./swagger.json', 'utf8');
+const swaggerConfig = JSON.parse(swaggerJson);
 
 const app = express();
 
 app.use(express.json());
+app.use(express.static('upload'));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerConfig))
 app.use((req: Request, res: Response, next: NextFunction) => {
+
   res.header('Access-Control-Allow-Origin', '*');
   res.header(
     'Access-Control-Allow-Headers',
     'Origin, X-Requested-With, Content-Type, Accept, Authorization, Entity-Name',
   );
-  
+
   if (req.method === 'OPTIONS') {
     res.header(
       'Access-Control-Allow-Methods',
@@ -26,7 +34,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // Altera o banco de dados de acordo com o header "Entity-Name" for passado
 app.use((req: Request, res: Response, next: NextFunction) => {
   const entity = req.get('entity-name');
-  if(!entity) throw new AppError('Nome da entidade não enviada');
+  if (!entity) throw new AppError('Nome da entidade não enviada');
 
   prismaInstance.setDB(entity);
   next();
@@ -34,10 +42,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 app.use(routes);
 
-app.use((err: Error, request: Request, response: Response, next: NextFunction ) => {
-  if(err instanceof AppError)  return response.status(err.statusCode).json({status: "error", message: err.message});
+app.use((err: Error, request: Request, response: Response, next: NextFunction) => {
+  if (err instanceof AppError) return response.status(err.statusCode).json({ status: "error", message: err.message });
 
-  return response.status(500).json({status: "error",  message: `Internal server error - ${err.message}`});
+  return response.status(500).json({ status: "error", message: `Internal server error - ${err.message}` });
 })
 
 app.listen(3333, () => console.log("Rodando na porta 3333"));

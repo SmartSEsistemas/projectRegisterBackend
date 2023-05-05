@@ -11,34 +11,101 @@ datasource db {
 }
 
 model User {
-  id             Int             @id @default(autoincrement())
-  password       String
-  Natural_person Natural_person? @relation(fields: [document], references: [cpf], map: "natural_person_fk")
-  Legal_person   Legal_person?   @relation(fields: [document], references: [cnpj], map: "legal_person_fk")
-  document       String          @unique
+  id                      Int                      @id @default(autoincrement())
+  password                String
+  document                String                   @unique
+  type_person             String
+  Register_natural_person Register_natural_person?
+  Register_legal_person   Register_legal_person?
 
   @@map("users")
 }
 
-model Natural_person {
-  id         Int      @id @default(autoincrement())
-  name       String
-  cpf        String   @unique
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  User       User?
+model Register_change_natural_person {
+  id                      Int                     @id @unique @default(autoincrement())
+  description             String
+  date                    DateTime
+  reason                  String
+  Register_natural_person Register_natural_person @relation(fields: [personId], references: [id])
+  personId                Int
 
-  // Add entity
-  @@map("cadastro_natural_persons")
+  @@map("register_change_natural_person")
 }
 
-model Legal_person {
-  id         Int      @id @default(autoincrement())
-  name       String
-  cnpj       String   @unique
+model Register_change_legal_person {
+  id                    Int                   @id @unique @default(autoincrement())
+  description           String
+  date                  DateTime
+  reason                String
+  Register_legal_person Register_legal_person @relation(fields: [personId], references: [id])
+  personId              Int
+
+  @@map("register_change_legal_person")
+}
+
+model Register_natural_person {
+  id                             Int                              @id @default(autoincrement())
+  name                           String
+  nb_rg                          String
+  organ_emission_rg              String
+  uf_rg                          String
+  date_emission_rg               DateTime
+  cnh                            String
+  cpf                            String                           @unique
+  date_birth                     DateTime
+  nationality                    String
+  address_cep                    String
+  address_street                 String
+  address_nb                     String
+  address_complement             String
+  address_city                   String
+  email                          String
+  phone                          String
+  id_entity                      Int
+  User                           User                             @relation(fields: [userId], references: [id])
+  userId                         Int                              @unique
+  Register_change_natural_person Register_change_natural_person[]
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  User       User?
 
-  @@map("cadastro_legal_persons")
+  Photo Photo  @relation(fields: [photo], references: [name_photo])
+  photo String @unique
+
+  @@map("register_natural_persons")
+}
+
+model Register_legal_person {
+  id                           Int                            @id @default(autoincrement())
+  cnpj                         String                         @unique
+  name                         String
+  corporate_name               String
+  nationality                  String
+  register_date                DateTime
+  address_cep                  String
+  address_street               String
+  address_nb                   String
+  address_complement           String
+  address_city                 String
+  email                        String
+  phone                        String
+  id_entity                    Int
+  created_at                   DateTime                       @default(now())
+  updated_at                   DateTime                       @updatedAt
+  User                         User                           @relation(fields: [userId], references: [id])
+  userId                       Int                            @unique
+  Register_change_legal_person Register_change_legal_person[]
+  Photo                        Photo                          @relation(fields: [photo], references: [name_photo])
+  photo                        String                         @unique
+
+  @@map("register_legal_persons")
+}
+
+model Photo {
+  id                      Int                      @id @default(autoincrement())
+  name_photo              String                   @unique
+  Register_legal_person   Register_legal_person?
+  Register_natural_person Register_natural_person?
+
+  @@map("photos")
 }

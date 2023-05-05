@@ -1,0 +1,200 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Projeto Base",
+    "version": "1.0.0",
+    "description": "A sample API"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/person/natural": {
+      "post": {
+        "summary": "Cadastro de pessoa física.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "photo",
+            "type": "file",
+            "required": true,
+            "description": "The file to upload.",
+            "schema": {
+              "$ref": "#/components/schemas/File"
+            }
+          },
+          {
+            "in": "body",
+            "name": "data",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/register_natural_person"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Pessoa física registrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Atualizar pessoa física.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "photo",
+            "type": "file",
+            "required": false,
+            "description": "The file to upload.",
+            "schema": {
+              "$ref": "#/components/schemas/File"
+            }
+          },
+          {
+            "in": "body",
+            "name": "data",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/register_natural_person",
+              "$ref": "#/components/schemas/reason"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Pessoa física registrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "File": {
+        "type": "file",
+        "format": "binary"
+      },
+      "reason": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "register_natural_person": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "nb_rg": {
+                "type": "string"
+              },
+              "organ_emission_rg": {
+                "type": "string"
+              },
+              "uf_rg": {
+                "type": "string"
+              },
+              "date_emission_rg": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "cnh": {
+                "type": "string"
+              },
+              "cpf": {
+                "type": "string"
+              },
+              "date_birth": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "nationality": {
+                "type": "string"
+              },
+              "address_cep": {
+                "type": "string"
+              },
+              "address_street": {
+                "type": "string"
+              },
+              "address_nb": {
+                "type": "string"
+              },
+              "address_complement": {
+                "type": "string"
+              },
+              "address_city": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "phone": {
+                "type": "string"
+              },
+              "id_entity": {
+                "type": "number"
+              },
+              "password": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
