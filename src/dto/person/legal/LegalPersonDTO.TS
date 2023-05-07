@@ -11,6 +11,6 @@ export interface LegalPersonDTO {
   address_city: string;
   email: string;
   phone: string;
-  id_entity: number;
+  entity_id: number;
   password: string;
 }
