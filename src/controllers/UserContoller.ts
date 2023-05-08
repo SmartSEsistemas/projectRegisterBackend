@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import userService from "../services/person/UserService.js";
+import userService from "../services/UserService.js";
 import { RequestWithUser } from "../protocols/RequestWithUser.js";
 import { AppError } from "../helper/AppError.js";
 
 class UserController {
   async login(req: Request, res: Response) {
     const result = await userService.token(req.body);
-    return res.status(201).json(result);
+    return res.status(200).json(result);
   }
 
   async personRecord(req: RequestWithUser, res: Response) {
@@ -19,6 +19,13 @@ class UserController {
     if (!req.user) throw new AppError('Token incorreto ou inválido');
     const result = await userService.update(req.user, req.body);
     return res.status(200).json(result);
+  }
+
+  async resetPassword(req: Request, res: Response) {
+    if (!req.body) throw new AppError('Informações não enviadas.');
+    const result = await userService.resetPassword(req.body);
+    return res.status(200).json(result);
+
   }
 }
 

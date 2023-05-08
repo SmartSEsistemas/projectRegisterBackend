@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import { RequestWithUser } from "../protocols/RequestWithUser";
-import { AppError } from "../helper/AppError";
+import { AppError } from "../helper/AppError.js";
 import prismaInstance from "../prisma/client.js";
 
 export function permission(permissionsRoutes: string[]) {
