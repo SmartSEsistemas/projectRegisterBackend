@@ -10,6 +10,7 @@ class PermissionServices {
 
     await prismaInstance.prisma().register_permission.create({ data: body });
   }
+
   async createRolePermission({ permission_id, role_id }: RolePermissionDTO) {
     try {
       const [role, permission] = await Promise.all([

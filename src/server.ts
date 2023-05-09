@@ -4,16 +4,46 @@ import routes from './routes/index.js';
 import { AppError } from './helper/AppError.js';
 import prismaInstance from './prisma/client.js';
 import swaggerUi from 'swagger-ui-express';
-import fs from 'fs';
+import swaggerJSDoc from "swagger-jsdoc";
 
-const swaggerJson = fs.readFileSync('./swagger.json', 'utf8');
-const swaggerConfig = JSON.parse(swaggerJson);
+/**
+ * @swagger
+ *
+ * parameters:
+ *   entityNameHeader:
+ *     in: header
+ *     name: Entity-name
+ *     description: Nome da entidade a ser consultada
+ *     required: true
+ *     type: string
+ *     default: User
+ */
+
+const swaggerDocs = swaggerJSDoc({
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Projeto base',
+      version: '1.0.0',
+    },
+    securityDefinitions: {
+      entityNameHeader: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'Entity-name'
+      }
+    }
+  },
+  apis: ['./src/routes/**/*.ts']
+});
 
 const app = express();
 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
 app.use(express.json());
 app.use(express.static('upload'));
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerConfig))
+// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerConfig))
 app.use((req: Request, res: Response, next: NextFunction) => {
 
   res.header('Access-Control-Allow-Origin', '*');

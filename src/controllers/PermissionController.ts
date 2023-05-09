@@ -11,7 +11,7 @@ class PermissionController {
 
   async registerRolePermission({ body }: Request, res: Response) {
     if (!body) throw new AppError('Informações não enviadas');
-    await permissionService.create(body);
+    await permissionService.createRolePermission(body);
     return res.status(201).json({ result: "Permissoes registradas." });
   }
 }
