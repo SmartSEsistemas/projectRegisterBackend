@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^4.13.0",
+<<<<<<< HEAD
     "@prisma/migrate": "^4.13.0",
     "@sendgrid/mail": "^7.7.0",
     "bcrypt": "^5.1.0",
@@ -19,6 +20,11 @@
     "express-async-errors": "^3.1.1",
     "jsonwebtoken": "^9.0.0",
     "multer": "^1.4.5-lts.1",
+=======
+    "bcrypt": "^5.1.0",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+>>>>>>> b9d0cbe40700cd7f77e5031c17922de2267c5bff
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^4.6.2"
   },
@@ -26,7 +32,10 @@
     "@types/bcrypt": "^5.0.0",
     "@types/express": "^4.17.17",
     "@types/jsonwebtoken": "^9.0.1",
+<<<<<<< HEAD
     "@types/multer": "^1.4.7",
+=======
+>>>>>>> b9d0cbe40700cd7f77e5031c17922de2267c5bff
     "@types/node": "^18.16.0",
     "@types/swagger-jsdoc": "^6.0.1",
     "@types/swagger-ui-express": "^4.1.3",

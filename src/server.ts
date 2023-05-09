@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import "express-async-errors";
 import express, { NextFunction, Request, Response } from 'express';
 import routes from './routes/index.js';
@@ -50,6 +51,20 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   res.header(
     'Access-Control-Allow-Headers',
     'Origin, X-Requested-With, Content-Type, Accept, Authorization, Entity-Name',
+=======
+import express, {NextFunction, Request, Response} from 'express';
+import routes from './routes/index.js';
+import { AppError } from './helper/AppError.js';
+const app = express();
+
+
+app.use(express.json());
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+>>>>>>> b9d0cbe40700cd7f77e5031c17922de2267c5bff
   );
 
   if (req.method === 'OPTIONS') {
@@ -61,6 +76,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   } else return next();
 });
 
+<<<<<<< HEAD
 // Altera o banco de dados de acordo com o header "Entity-Name" for passado
 app.use((req: Request, res: Response, next: NextFunction) => {
   const entity = req.get('entity-name');
@@ -76,6 +92,14 @@ app.use((err: Error, request: Request, response: Response, next: NextFunction) =
   if (err instanceof AppError) return response.status(err.statusCode).json({ status: "error", message: err.message });
 
   return response.status(500).json({ status: "error", message: `Internal server error - ${err.message}` });
+=======
+app.use(routes);
+
+app.use((err: Error, request: Request, response: Response, next: NextFunction ) => {
+  if(err instanceof AppError)  return response.status(err.statusCode).json({status: "error", message: err.message});
+
+  return response.status(500).json({status: "error",  message: `Internal server error - ${err.message}`});
+>>>>>>> b9d0cbe40700cd7f77e5031c17922de2267c5bff
 })
 
 app.listen(3333, () => console.log("Rodando na porta 3333"));

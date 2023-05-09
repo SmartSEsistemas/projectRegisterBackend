@@ -8,6 +8,7 @@
     "noImplicitReturns": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
+<<<<<<< HEAD
     "outDir": "dist",
     "resolveJsonModule": true
   },
@@ -19,3 +20,10 @@
     "node_modules"
   ]
 }
+=======
+    "outDir": "dist"
+  },
+  "include": ["src", "src/*.d.ts"],
+  "exclude": ["node_modules"]
+}
+>>>>>>> b9d0cbe40700cd7f77e5031c17922de2267c5bff
