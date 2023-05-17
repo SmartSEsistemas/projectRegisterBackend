@@ -7,7 +7,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-<<<<<<< HEAD
   url      = env("DATABASE_01_URL")
 }
 
@@ -377,7 +376,4 @@ model Register_background_type {
   Register_organization_chart Register_organization_chart[]
 
   @@map("register_background_types")
-=======
-  url      = env("DATABASE_URL")
->>>>>>> b9d0cbe40700cd7f77e5031c17922de2267c5bff
 }

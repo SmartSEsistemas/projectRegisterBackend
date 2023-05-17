@@ -1,5 +1,4 @@
 import { Router } from "express";
-<<<<<<< HEAD
 import userController from "../controllers/UserContoller.js";
 import authentication from "../middlewares/Authentication.js";
 const userRouter = Router();
@@ -168,14 +167,3 @@ userRouter.put("/", authentication.required, userController.update);
 userRouter.post("/reset", userController.resetPassword);
 
 export default userRouter;
-=======
-
-import userController from "../controllers/user.controller.js";
-
-const userRoutes = Router();
-
-userRoutes.post("/", userController.register);
-
-
-export default userRoutes;
->>>>>>> b9d0cbe40700cd7f77e5031c17922de2267c5bff

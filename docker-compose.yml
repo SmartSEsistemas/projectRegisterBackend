@@ -6,25 +6,16 @@ services:
   #     - "3000:3000"
 
   db1:
-<<<<<<< HEAD
     container_name: db1
     image: postgres
     restart: always
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
-=======
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_USER: root01
-      POSTGRES_PASSWORD: root01
->>>>>>> b9d0cbe40700cd7f77e5031c17922de2267c5bff
       POSTGRES_DB: db1
     ports:
       - "5432:5432"
     volumes:
-<<<<<<< HEAD
       - db-project-base:/db1/var/lib/postgresql/data
 
   db2:
@@ -34,24 +25,10 @@ services:
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
-=======
-      - ./db1data:/var/lib/postgresql/data
-
-  db2:
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_USER: root02
-      POSTGRES_PASSWORD: root02
->>>>>>> b9d0cbe40700cd7f77e5031c17922de2267c5bff
       POSTGRES_DB: db2
     ports:
       - "5433:5432"
     volumes:
-<<<<<<< HEAD
       - db-project-base:/db2/var/lib/postgresql/data
 volumes:
   db-project-base:
-=======
-      - ./db2data:/var/lib/postgresql/data
->>>>>>> b9d0cbe40700cd7f77e5031c17922de2267c5bff

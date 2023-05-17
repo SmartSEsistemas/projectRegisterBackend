@@ -1,6 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 
-<<<<<<< HEAD
 class PrismaInstance {
   private DB: number = 0;
   private nameDb: string = '';
@@ -24,14 +23,3 @@ class PrismaInstance {
 }
 
 export default new PrismaInstance();
-=======
-class CreatePrismaInstance {
-  newInstance(databaseUrl: string): PrismaClient {
-    return new PrismaClient({
-      databaseUrl
-    })
-  }
-}
-
-export default new CreatePrismaInstance();
->>>>>>> b9d0cbe40700cd7f77e5031c17922de2267c5bff
