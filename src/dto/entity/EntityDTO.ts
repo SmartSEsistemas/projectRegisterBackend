@@ -1,20 +1,31 @@
-export interface EntityDTO {
-  legal_person_id: number;
-  legal_nature_id: number;
-  email: string;
-  phone: string;
-  site: string;
-  time_zone: string;
-  rpps: boolean;
-  plan_type: string;
-  county_id: number;
-  county_cod: string;
-  entity_type_id: number;
-  advisory: boolean;
-  person_advisory_id: number;
-  software_provider_person_id: number;
-  software_version: string;
-  date_institution: Date;
-  creation_act: string;
-  extinction_date: Date;
-}
+import {z} from  'zod';
+
+export const entitySchema = z.object({
+  register_entity_type_id: z.number(),
+  register_legal_person_id: z.number(),
+  register_legal_nature_id: z.number(),
+  coat_of_arms: z.string(),
+  acronym: z.string(),
+  address_street: z.string(),    
+  address_nb: z.string(),        
+  address_complement: z.string().optional(),
+  address_cep: z.string(),       
+  register_county_id: z.number(),
+  cod_county_ibge: z.string(),
+  email: z.string(),
+  phone: z.string(),
+  site: z.string(),
+  time_zone: z.string(),
+  rpps: z.boolean(),
+  plan_type: z.enum(["PREVIDENCIARIO", "FINANCEIRO"]).optional(),
+  accounting_advice: z.boolean(),
+  person_advisory_id: z.number().optional(),
+  software_provider_person_id: z.number(),
+  software_version: z.string(),
+  entity_institution_date: z.coerce.date(),
+  entity_creation_act: z.string(),
+  extinction_date: z.coerce.date().optional(),
+  nr_tce: z.string()
+})
+
+export type EntityDTO = z.infer<typeof entitySchema>;

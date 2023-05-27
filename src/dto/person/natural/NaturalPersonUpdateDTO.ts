@@ -1,7 +1,10 @@
-import { ReasonDTO } from "../../ReasonDTO";
-import { NaturalPersonDTO } from "./NaturalPersonDTO";
+import {z} from 'zod';
+import { reasonSchema } from "../../reason/ReasonDTO.js";
+import { naturalPersonSchema } from "./NaturalPersonDTO.js";
 
-export interface NaturalPersonUpdateDTO {
-  person: Partial<Omit<NaturalPersonDTO, 'password' | 'cpf'>>
-  reason: ReasonDTO
-}
+
+export const naturalPersonUpdadeSchema = z.object({
+  person: naturalPersonSchema,
+  reason: reasonSchema
+})
+export type NaturalPersonUpdateDTO = z.infer<typeof naturalPersonUpdadeSchema>;

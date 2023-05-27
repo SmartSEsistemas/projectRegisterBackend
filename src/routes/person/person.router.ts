@@ -1,6 +1,6 @@
 import { Router } from "express";
-import naturalPersonRoutes from "./naturalPerson.router.js";
-import legalPersonRoutes from "./legalPerson.router.js";
+import naturalPersonRoutes from "./naturePerson/naturalPerson.router.js";
+import legalPersonRoutes from "./legalPerson/legalPerson.router.js";
 
 const routesPerson = Router();
 routesPerson.use("/natural", naturalPersonRoutes);

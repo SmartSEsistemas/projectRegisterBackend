@@ -1,93 +1,149 @@
-import bcrypt from "bcrypt";
-import fs from 'fs';
-import path from 'path';
-import { LegalPersonRegisterDTO } from "../../dto/person/legal/LegalPersonRegisterDTO.js";
 import { LegalPersonUpdateDTO } from "../../dto/person/legal/LegalPersonUpdateDTO.js";
-import { AppError } from "../../helper/AppError.js";
+import { AppMessage } from "../../utils/AppMessage.js";
 import prismaInstance from '../../prisma/client.js';
-import { ResultResponseMessage } from "../../protocols/ResultResponseMessage.js";
 import { Register_legal_person } from "@prisma/client";
-import { UserToken } from "../../protocols/UserToken.js";
-import deletePhoto from "../../helper/deletePhoto.js";
+import deletePhoto from "../../utils/deletePhoto.js";
+import { LegalPersonDTO } from "../../dto/person/legal/LegalPersonDTO.js";
 
 class LegalPersonService {
-  async create(person: LegalPersonRegisterDTO, file: Express.Multer.File): Promise<ResultResponseMessage> {
-    const { cnpj } = person;
-    const { password, ...personWithoutPassword } = person;
-    const existingPerson = await this.findPerson(cnpj);
+  async create(person: LegalPersonDTO, user_id: number, entity_id: number, file?: Express.Multer.File): Promise<void> {
 
-    if (existingPerson) {
-      deletePhoto(file.filename)
-      throw new AppError("Pessoa já cadastrada.")
-    };
+    try {
+      await this.checkIds(person, entity_id);
 
-    const hashPassword = bcrypt.hashSync(password, 10);
-    return await prismaInstance.prisma().register_legal_person.create({
-      data: {
-        ...personWithoutPassword,
-        User: {
-          create: {
-            password: hashPassword,
-            document: cnpj,
-            type_person: 'LEGAL'
-          }
-        },
-        Photo: {
-          create: {
-            name_photo: file.filename
-          }
+      if (await this.findPerson(person.cnpj, entity_id)) throw new Error("Pessoa jurídica já cadastrada.");
+
+      if(file) await this.handlePhoto(file.filename, user_id);
+
+      await prismaInstance.prisma().register_legal_person.create({
+        data: {
+          ...person,
+          first_user: 1,
+          register_entity_id: entity_id,
+          photo: file ? file.filename : ''
         }
-      }
-    }).then(() => ({ status: 'success', message: 'Pessoa jurídica cadastrada com sucesso.' }))
-      .catch(() => { throw new AppError('Error ao criar pessoa jurídica.') })
+      }).catch(()=> {throw new Error("Error ao cadastrar pessoa")});
+
+    } catch (error: any) {
+      if(file) deletePhoto(file.filename);
+      if(error instanceof AppMessage) throw new AppMessage(error.Message, error.Status_code);
+      else throw new AppMessage(error.message, 400)
+    } finally {
+      await prismaInstance.prisma().$disconnect();
+    }
   }
 
-  async update({ document }: UserToken, body: LegalPersonUpdateDTO, file?: Express.Multer.File): Promise<ResultResponseMessage> {
-    const { person, reason } = body
-    if (!await this.findPerson(document)) throw new AppError("Pessoa não cadastrada.");
+  async update({person, reason}: LegalPersonUpdateDTO, user_id: number, entity_id: number, file?: Express.Multer.File): Promise<void> {
+    const {cnpj, ...personWithoutCnpj} = person;
 
-    return await prismaInstance.prisma().register_legal_person.update({
-      where: { cnpj: document },
-      data: {
-        ...person,
-        Register_change_legal_person: {
-          create: { ...reason }
-        }
-      },
-    })
-      .then(async (person) => {
-        if (!file) return;
-        deletePhoto(person.photo);
-        await prismaInstance.prisma().register_legal_person.update({
-          where: { cnpj: document },
-          data: {
-            Photo: {
-              update: {
-                name_photo: file.filename
-              }
+    try {
+      await this.checkPerson(cnpj, entity_id);
+
+      await this.checkIds(person, entity_id);
+
+      if(!await prismaInstance.prisma().register_legal_person.findUnique({
+        where: {id: reason.person_id}
+      })) throw new Error("ID passado no motivo não existe.");
+
+      const personResult = await prismaInstance.prisma().register_legal_person.update({
+        where: {cnpj_register_entity_id: { cnpj, register_entity_id: entity_id}},
+        data: {
+          ...personWithoutCnpj,
+          last_user: user_id,
+          Register_change_legal_person: {
+            create: {
+              ...reason,
+              first_user: user_id,
+              register_entity_id: entity_id
             }
           }
-        })
-      })
-      .then(() => ({ status: 'success', message: 'Pessoa alterada com sucesso.' }))
-      .catch(() => { throw new AppError('Error ao alterar usuário.') })
+        }
+      }).catch(()=> {throw new Error("Error ao atualizar pessoa jurídica")});
+
+      if (!file) return;
+      if(personResult.photo) deletePhoto(personResult.photo);
+      await prismaInstance.prisma().register_legal_person.update({
+        where: { cnpj_register_entity_id: {cnpj, register_entity_id: entity_id} },
+        data: {
+          Register_photo: {
+            update: {
+              name_photo: file.filename,
+              last_user: user_id
+            }
+          }
+        }
+      }).catch(()=> {throw new Error("Error ao atualizar foto da pessoa jurídica.")});
+
+    } catch (error: any) {
+      if(file) deletePhoto(file.filename);
+      if(error instanceof AppMessage) throw new AppMessage(error.Message, error.Status_code);
+      else throw new AppMessage(error.message, 400)
+    } finally {
+      await prismaInstance.prisma().$disconnect();
+    }
   }
 
+  async get(cnpj: string, register_entity_id: number) {
+    return await prismaInstance.prisma().register_legal_person.findUnique({ where: { cnpj_register_entity_id: {cnpj, register_entity_id}}})
+    .catch(()=> {throw new AppMessage("Error ao pegar pessoa jurídica.")})
+  }
 
+  async delete(cnpj: string, register_entity_id: number): Promise<void> {
+    try {
+      await this.checkPerson(cnpj, register_entity_id);
 
-  async get(cnpj: string) {
-    const result = await prismaInstance.prisma().user.findUnique({
-      where: { document: cnpj },
-      select: { Register_legal_person: true }
+      await prismaInstance.prisma().register_legal_person.delete({
+        where: { cnpj_register_entity_id: {cnpj, register_entity_id} }
+      }).catch(() => {throw new Error('Error ao deletar pessoa jurídica.')});
+
+    }  catch (error: any) {
+      throw new AppMessage(error.message, 400)
+    } finally {
+      await prismaInstance.prisma().$disconnect();
+    }    
+  }
+
+  private async findPerson(cnpj: string, register_entity_id: number): Promise<Register_legal_person | null> {
+    return await prismaInstance.prisma().register_legal_person.findUnique({ where: { cnpj_register_entity_id: {cnpj, register_entity_id} }});
+  }
+
+  private async checkPerson(cnpj: string, register_entity_id: number) {
+    const person = await prismaInstance.prisma().register_legal_person.findUnique({
+      where: { cnpj_register_entity_id: {cnpj, register_entity_id} },
+      include: {
+        Register_entity: true
+      } 
+    }).catch(() => {throw new Error('Error ao pegar pessoa jurídica para deletar/editar.')});
+
+    if(!person) throw new Error('Pessoa jurídica não encontrada');
+    if(person.Register_entity.length > 0 ) throw new Error("Pessoa jurídica não pode ser deletada/editada pois já foi referenciada.");
+  }
+
+  private async handlePhoto(filename: string, user_id: number): Promise<void> {
+    await prismaInstance.prisma().register_photo.create({ 
+      data: { 
+        name_photo: filename, 
+        first_user: user_id 
+      } 
+    })
+    .catch(()=> {throw new Error("Error ao cadastrar foto")});
+  }
+
+  private async checkIds({register_county_id, state_uf_id}: LegalPersonDTO, entity_id: number): Promise<void> {
+    const [county, state, entity] = await Promise.all([
+      prismaInstance.prisma().register_county.findUnique({where: {id: register_county_id}}),
+      prismaInstance.prisma().register_uf.findUnique({where: {id: state_uf_id}}),
+      prismaInstance.prisma().register_entity.findUnique({where: {id: entity_id}}),
+    ]);
+
+    const result = { county, state, entity }
+    const errors: string[] = [];
+    Object.keys(result).forEach((table) => {
+      if(!result[table as keyof typeof result])  errors.push(`ID da tabela ${table} incorreto.`);
     })
 
-    console.log(result?.Register_legal_person);
+    if(errors.length) throw new AppMessage(errors, 404);
   }
-
-  private async findPerson(cnpj: string): Promise<Register_legal_person | null> {
-    return await prismaInstance.prisma().register_legal_person.findUnique({ where: { cnpj }, include: { User: true } });
-  }
-
 }
 
 export default new LegalPersonService();
