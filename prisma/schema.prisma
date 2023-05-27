@@ -10,18 +10,83 @@ datasource db {
   url      = env("DATABASE_01_URL")
 }
 
+enum Reason {
+  ALTERACAO
+  INATIVACAO
+}
+
+enum ReasonInativacao {
+  INATIVACAO
+}
+
+enum PlanType {
+  PREVIDENCIARIO
+  FINANCEIRO
+}
+
+enum AdminTypes {
+  DIRETA
+  INDIRETA
+}
+
+enum Power {
+  EXECUTIVO
+  LEGISLATIVO
+}
+
+enum Types {
+  INSERIR
+  EDITAR
+  REMOVER
+  VISUALIZAR
+}
+
 // Person
 
-model User {
-  id                      Int                      @id @default(autoincrement())
-  password                String
-  document                String                   @unique
-  type_person             String
+model Register_user {
+  id                     Int       @id @default(autoincrement())
+  password               String
+  document               String    @unique
+  type_person            String
+  active                 Boolean
+  start_date             DateTime?
+  final_date             DateTime?
+  register_entity_id     Int
+  register_permission_id Int?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
   Register_natural_person Register_natural_person?
   Register_legal_person   Register_legal_person?
-  Register_user_role      Register_user_role[]
 
-  @@map("users")
+  Register_user_role            Register_user_role[]
+  Register_change_user          Register_change_user[]
+  Register_access_authorization Register_access_authorization[]
+
+  // Register_entity     Register_entity     @relation(fields: [register_entity_id], references: [id])
+  // Register_permission Register_permission @relation(fields: [register_permission_id], references: [id])
+
+  @@unique([document, register_entity_id])
+  @@map("register_users")
+}
+
+model Register_change_user {
+  id               Int              @id @default(autoincrement())
+  register_user_id Int
+  description      String
+  date             DateTime
+  reason           ReasonInativacao
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+  first_user       Int
+  last_user        Int?
+
+  Register_user Register_user @relation(fields: [register_user_id], references: [id])
+
+  @@map("register_change_user")
 }
 
 model Register_natural_person {
@@ -29,331 +94,515 @@ model Register_natural_person {
   name               String
   nb_rg              String
   organ_emission_rg  String
-  uf_rg              String
+  register_uf_id     Int
   date_emission_rg   DateTime
-  cnh                String
-  cpf                String   @unique
+  cnh                String?
+  cpf                String
   date_birth         DateTime
   nationality        String
   address_cep        String
   address_street     String
   address_nb         String
-  address_complement String
-  address_city       String
+  address_district   String
+  address_complement String?
+  register_county_id Int
+  state_uf_id        Int
   email              String
   phone              String
-  Photo              Photo    @relation(fields: [photo], references: [name_photo])
-  photo              String   @unique
-  User               User     @relation(fields: [user_id], references: [id])
-  user_id            Int      @unique
-
-  Register_change_natural_person Register_change_natural_person[]
-  entity_id                      Int
+  photo              String?  @unique
+  register_date      DateTime
+  register_user_id   Int?     @unique
+  register_entity_id Int
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
 
   Register_resp_entity             Register_resp_entity[]
   Register_resp_organization_chart Register_resp_organization_chart[]
+  Register_change_natural_person   Register_change_natural_person[]
 
+  Register_user   Register_user?  @relation(fields: [register_user_id], references: [id])
+  Register_entity Register_entity @relation(fields: [register_entity_id], references: [id])
+  Register_uf     Register_uf     @relation(fields: [register_uf_id], references: [id])
+  Register_county Register_county @relation(fields: [register_county_id], references: [id])
+  Register_photo  Register_photo? @relation(fields: [photo], references: [name_photo])
+
+  @@unique([cpf, register_entity_id])
   @@map("register_natural_persons")
 }
 
 model Register_change_natural_person {
-  id                      Int                     @id @unique @default(autoincrement())
-  description             String
-  date                    DateTime                @default(now())
-  reason                  String
-  Register_natural_person Register_natural_person @relation(fields: [person_id], references: [id])
-  person_id               Int
+  id                         Int      @id @unique @default(autoincrement())
+  description                String
+  date                       DateTime
+  reason                     Reason
+  register_entity_id         Int
+  register_natural_person_id Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
+  Register_natural_person Register_natural_person @relation(fields: [register_natural_person_id], references: [id])
+  Register_entity         Register_entity         @relation(fields: [register_entity_id], references: [id])
 
   @@map("register_change_natural_person")
 }
 
 model Register_legal_person {
-  id                           Int                            @id @default(autoincrement())
-  cnpj                         String                         @unique
-  name                         String
-  corporate_name               String
-  nationality                  String
-  register_date                DateTime
-  address_cep                  String
-  address_street               String
-  address_nb                   String
-  address_complement           String
-  address_city                 String
-  email                        String
-  Photo                        Photo                          @relation(fields: [photo], references: [name_photo])
-  photo                        String                         @unique
-  phone                        String
-  entity_id                    Int
-  User                         User                           @relation(fields: [user_id], references: [id])
-  user_id                      Int                            @unique
-  Register_change_legal_person Register_change_legal_person[]
-  Register_entity              Register_entity[]
+  id                 Int      @id @default(autoincrement())
+  name               String
+  corporate_name     String
+  cnpj               String
+  opening_date       DateTime
+  nationality        String
+  address_cep        String
+  address_street     String
+  address_nb         String
+  address_complement String?
+  register_county_id Int
+  state_uf_id        Int      @default(0)
+  email              String
+  photo              String?  @unique
+  phone              String
+  register_date      DateTime
+  register_entity_id Int
+  register_user_id   Int?     @unique
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
 
+  Register_change_legal_person Register_change_legal_person[]
+  Register_entity              Register_entity[]
+
+  Register_user   Register_user?  @relation(fields: [register_user_id], references: [id])
+  Register_photo  Register_photo? @relation(fields: [photo], references: [name_photo])
+  Register_county Register_county @relation(fields: [register_county_id], references: [id])
+
+  @@unique([cnpj, register_entity_id])
   @@map("register_legal_persons")
 }
 
 model Register_change_legal_person {
-  id                    Int                   @id @unique @default(autoincrement())
-  description           String
-  date                  DateTime              @default(now())
-  reason                String
-  Register_legal_person Register_legal_person @relation(fields: [person_id], references: [id])
-  person_id             Int
+  id                       Int      @id @unique @default(autoincrement())
+  description              String
+  date                     DateTime @default(now())
+  reason                   Reason
+  register_entity_id       Int
+  register_legal_person_id Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
+  Register_legal_person Register_legal_person @relation(fields: [register_legal_person_id], references: [id])
+  Register_entity       Register_entity       @relation(fields: [register_entity_id], references: [id])
 
   @@map("register_change_legal_person")
 }
 
-model Photo {
-  id                      Int                      @id @default(autoincrement())
-  name_photo              String                   @unique
+model Register_photo {
+  id         Int    @id @default(autoincrement())
+  name_photo String @unique
+
   Register_legal_person   Register_legal_person?
   Register_natural_person Register_natural_person?
+  Register_entity         Register_entity?
 
-  @@map("photos")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
+  @@map("register_photos")
 }
 
 // Permissions and roles
 
 model Register_role {
-  id                        Int                         @id @default(autoincrement())
-  name                      String
-  description               String
-  type                      String
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+  module      String
+  type        Types
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
   Register_user_role        Register_user_role[]
   Register_roles_permission Register_roles_permission[]
 
+  @@unique([name, type])
   @@map("register_roles")
 }
 
 model Register_user_role {
-  id            Int           @id @default(autoincrement())
-  User          User          @relation(fields: [user_id], references: [id])
-  user_id       Int
-  Register_role Register_role @relation(fields: [role_id], references: [id])
-  role_id       Int
+  id               Int @id @default(autoincrement())
+  register_user_id Int
+  register_role_id Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
+  Register_user Register_user @relation(fields: [register_user_id], references: [id])
+  Register_role Register_role @relation(fields: [register_role_id], references: [id])
 
   @@map("register_user_roles")
 }
 
 model Register_permission {
-  id                       Int                         @id @default(autoincrement())
-  name                     String
-  description              String
-  resource                 String
-  Register_role_permission Register_roles_permission[]
+  id          Int    @id @default(autoincrement())
+  name        String @unique
+  description String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
+  Register_role_permission      Register_roles_permission[]
+  Register_access_authorization Register_access_authorization[]
+  // Register_user            Register_user[]
 
   @@map("register_permissions")
 }
 
 model Register_roles_permission {
-  id                  Int                  @id @default(autoincrement())
-  Register_role       Register_role        @relation(fields: [role_id], references: [id])
-  role_id             Int
-  Register_permission Register_permission? @relation(fields: [permission_id], references: [id])
-  permission_id       Int
+  id                     Int @id @default(autoincrement())
+  register_role_id       Int
+  register_permission_id Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
+  Register_role       Register_role        @relation(fields: [register_role_id], references: [id])
+  Register_permission Register_permission? @relation(fields: [register_permission_id], references: [id])
 
   @@map("register_roles_permissions")
+}
+
+model Register_access_authorization {
+  id                     Int      @id @default(autoincrement())
+  register_user_id       Int
+  register_permission_id Int
+  approval_date          DateTime
+  user_resp_id           Int
+  register_entity_id     Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
+  Register_user       Register_user       @relation(fields: [register_user_id], references: [id])
+  Register_entity     Register_entity?    @relation(fields: [register_entity_id], references: [id])
+  Register_permission Register_permission @relation(fields: [register_permission_id], references: [id])
+
+  @@map("register_access_authorizations")
 }
 
 // Entities
 
 model Register_entity {
-  id                          Int                    @id @default(autoincrement())
-  Register_legal_person       Register_legal_person  @relation(fields: [legal_person_id], references: [id])
-  legal_person_id             Int
-  Legal_nature                Legal_nature           @relation(fields: [legal_nature_id], references: [id])
-  legal_nature_id             Int
+  id                          Int       @id @default(autoincrement())
+  register_entity_type_id     Int
+  register_legal_person_id    Int
+  register_legal_nature_id    Int
+  coat_of_arms                String    @unique
+  acronym                     String
+  address_street              String
+  address_nb                  String
+  address_complement          String?
+  address_cep                 String
+  register_county_id          Int
+  cod_county_ibge             String
   email                       String
   phone                       String
   site                        String
   time_zone                   String
   rpps                        Boolean
-  plan_type                   String
-  County                      County                 @relation(fields: [county_id], references: [id])
-  county_id                   Int
-  county_cod                  String
-  Register_entity_type        Register_entity_type   @relation(fields: [entity_type_id], references: [id])
-  entity_type_id              Int
-  advisory                    Boolean
-  person_advisory_id          Int // Verificar se é possível relacionar o fisico e o jurídico 
+  plan_type                   PlanType?
+  accounting_advice           Boolean
+  person_advisory_id          Int? // Verificar se é possível relacionar o fisico e o jurídico 
   software_provider_person_id Int // Verificar se é possível relacionar o fisico e o jurídico
   software_version            String
-  date_institution            DateTime
-  creation_act                String
-  extinction_date             DateTime
-  Register_resp_entity        Register_resp_entity[]
+  entity_institution_date     DateTime
+  entity_creation_act         String
+  extinction_date             DateTime?
+  nr_tce                      String
 
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
+  Register_resp_entity           Register_resp_entity[]
+  Register_natural_person        Register_natural_person[]
+  Register_change_natural_person Register_change_natural_person[]
+  Register_change_legal_person   Register_change_legal_person[]
+  Register_organization_chart    Register_organization_chart[]
+  // Register_user                  Register_user[]
+  Register_access_authorization  Register_access_authorization[]
+
+  Register_legal_person Register_legal_person @relation(fields: [register_legal_person_id], references: [id])
+  Register_legal_nature Register_legal_nature @relation(fields: [register_legal_nature_id], references: [id])
+  Register_county       Register_county       @relation(fields: [register_county_id], references: [id])
+  Register_entity_type  Register_entity_type  @relation(fields: [register_entity_type_id], references: [id])
+  Register_photo        Register_photo        @relation(fields: [coat_of_arms], references: [name_photo])
+
+  @@unique([register_entity_type_id, register_legal_person_id, nr_tce])
   @@map("register_entities")
 }
 
 model Register_entity_type {
-  id              Int               @id @default(autoincrement())
-  description     String
-  nb_tce          String
-  start_date      DateTime
-  final_date      DateTime
+  id          Int      @id @default(autoincrement())
+  description String
+  nb_tce      String
+  start_date  DateTime
+  final_date  DateTime
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
   Register_entity Register_entity[]
 
+  @@unique([description, nb_tce])
   @@map("register_entitie_types")
 }
 
 model Register_resp_entity {
-  id                          Int                           @id @default(autoincrement())
-  Register_natural_person     Register_natural_person       @relation(fields: [natural_person_id], references: [id])
-  natural_person_id           Int
-  Register_change_resp_entity Register_change_resp_entity[]
-  Register_entity             Register_entity               @relation(fields: [entity_id], references: [id])
-  entity_id                   Int
-  start_date                  DateTime
-  final_expected_date         DateTime
+  id                         Int       @id @default(autoincrement())
+  register_entity_id         Int
+  register_natural_person_id Int
+  start_date                 DateTime
+  final_expected_date        DateTime?
 
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
+  Register_change_resp_entity Register_change_resp_entity[]
+
+  Register_natural_person Register_natural_person @relation(fields: [register_natural_person_id], references: [id])
+  Register_entity         Register_entity         @relation(fields: [register_entity_id], references: [id])
+
+  @@unique([register_entity_id, start_date])
   @@map("register_resp_entities")
 }
 
 model Register_change_resp_entity {
-  id                   Int                  @id @default(autoincrement())
-  description          String
-  date                 DateTime             @default(now())
-  reason               String
-  Register_resp_entity Register_resp_entity @relation(fields: [resp_id], references: [id])
-  resp_id              Int
+  id                      Int              @id @default(autoincrement())
+  description             String
+  date                    DateTime
+  reason                  ReasonInativacao
+  register_resp_entity_id Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
+  Register_resp_entity Register_resp_entity @relation(fields: [register_resp_entity_id], references: [id])
 
   @@map("register_change_resp_entities")
 }
 
-model Legal_nature {
-  id                  Int                   @id @default(autoincrement())
-  nb_legal_nature     String
-  description         String
-  start_date          DateTime
-  final_date          DateTime
+model Register_legal_nature {
+  id              Int      @id @default(autoincrement())
+  nb_legal_nature String
+  description     String
+  start_date      DateTime
+  final_date      DateTime
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
   Register_entity     Register_entity[]
   Register_admin_type Register_admin_type[]
 
-  @@map("legal_nature")
+  @@map("register_legal_nature")
 }
 
-model Uf {
-  id          Int      @id @default(autoincrement())
-  uf_cod      Int
-  uf          String
-  description String
-  County      County[]
-
-  @@map("ufs")
-}
-
-model County {
+model Register_uf {
   id              Int               @id @default(autoincrement())
   description     String
-  Uf              Uf                @relation(fields: [uf_id], references: [id])
-  uf_id           Int
-  nb_ibge         String
-  Register_entity Register_entity[]
+  Register_county Register_county[]
 
-  @@map("counties")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
+  Register_natural_person Register_natural_person[]
+
+  @@map("register_ufs")
+}
+
+model Register_county {
+  id          Int    @id @default(autoincrement())
+  description String
+  uf_id       Int
+  nb_ibge     String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
+  Register_entity         Register_entity[]
+  Register_natural_person Register_natural_person[]
+  Register_legal_person   Register_legal_person[]
+
+  Register_uf Register_uf @relation(fields: [uf_id], references: [id])
+
+  @@map("register_counties")
 }
 
 model Register_admin_type {
-  id                          Int                           @id @default(autoincrement())
-  description                 String
-  start_date                  DateTime
-  final_date                  DateTime
-  Legal_nature                Legal_nature                  @relation(fields: [legal_nature_id], references: [id])
-  legal_nature_id             Int
-  type                        String
-  power                       String
+  id                       Int        @id @default(autoincrement())
+  description              String
+  register_legal_nature_id Int
+  admin_type               AdminTypes
+  power                    Power
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
   Register_organization_chart Register_organization_chart[]
 
+  Register_legal_nature Register_legal_nature @relation(fields: [register_legal_nature_id], references: [id])
+
+  @@unique([description, admin_type])
   @@map("register_admin_types")
 }
 
 // Organization_chart
 
 model Register_organization_chart {
-  id                                 Int                                  @id @default(autoincrement())
-  Register_organization_chart_config Register_organization_chart_config   @relation(fields: [organization_chart_config_id], references: [id])
-  organization_chart_config_id       Int
-  description                        String
-  nb_organogram                      String
-  Register_admin_type                Register_admin_type                  @relation(fields: [admin_type_id], references: [id])
-  admin_type_id                      Int
-  year                               Int
-  start_date                         DateTime
-  Register_background_type           Register_background_type             @relation(fields: [background_type_id], references: [id])
-  background_type_id                 Int
-  subunit                            Boolean
+  id                                    Int      @id @default(autoincrement())
+  register_organization_chart_config_id Int
+  description                           String
+  nb_organogram                         String
+  register_admin_type_id                Int
+  year                                  Int
+  start_date                            DateTime
+  subunit                               Boolean
+  isBackground                          Boolean
+  register_background_type_id           Int
+  register_entity_id                    Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
   Register_change_organization_chart Register_change_organization_chart[]
   Register_resp_organization_chart   Register_resp_organization_chart[]
+
+  Register_organization_chart_config Register_organization_chart_config @relation(fields: [register_organization_chart_config_id], references: [id])
+  Register_admin_type                Register_admin_type                @relation(fields: [register_admin_type_id], references: [id])
+  Register_background_type           Register_background_type           @relation(fields: [register_background_type_id], references: [id])
+  Register_entity                    Register_entity                    @relation(fields: [register_entity_id], references: [id])
 
   @@map("register_organization_charts")
 }
 
 model Register_change_organization_chart {
-  id                          Int                         @id @default(autoincrement())
-  description                 String
-  date                        DateTime                    @default(now())
-  reason                      String
-  Register_organization_chart Register_organization_chart @relation(fields: [organization_chart_id], references: [id])
-  organization_chart_id       Int
+  id                             Int      @id @default(autoincrement())
+  register_organization_chart_id Int
+  description                    String
+  date                           DateTime @default(now())
+  reason                         Reason
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
+  Register_organization_chart Register_organization_chart @relation(fields: [register_organization_chart_id], references: [id])
 
   @@map("register_change_organization_charts")
 }
 
 model Register_resp_organization_chart {
-  id Int @id @default(autoincrement())
+  id                             Int       @id @default(autoincrement())
+  register_organization_chart_id Int
+  register_natural_person_id     Int
+  start_date                     DateTime
+  final_expected_date            DateTime?
 
-  Register_organization_chart Register_organization_chart @relation(fields: [organization_chart_id], references: [id])
-  organization_chart_id       Int
-
-  Register_natural_person                 Register_natural_person                   @relation(fields: [natural_person_id], references: [id])
-  natural_person_id                       Int
-  start_date                              DateTime
-  final_expected_date                     DateTime
   Register_change_resp_organization_chart Register_change_resp_organization_chart[]
 
+  Register_organization_chart Register_organization_chart @relation(fields: [register_organization_chart_id], references: [id])
+  Register_natural_person     Register_natural_person     @relation(fields: [register_natural_person_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
+  @@unique([register_organization_chart_id, start_date])
   @@map("register_resp_organization_charts")
 }
 
 model Register_change_resp_organization_chart {
-  id                               Int                              @id @default(autoincrement())
-  description                      String
-  date                             DateTime                         @default(now())
-  reason                           String
-  Register_resp_organization_chart Register_resp_organization_chart @relation(fields: [resp_organization_chart_id], references: [id])
-  resp_organization_chart_id       Int
+  id                                  Int              @id @default(autoincrement())
+  register_resp_organization_chart_id Int
+  description                         String
+  date                                DateTime         @default(now())
+  reason                              ReasonInativacao
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
+  Register_resp_organization_chart Register_resp_organization_chart @relation(fields: [register_resp_organization_chart_id], references: [id])
 
   @@map("register_change_resp_organization_charts")
 }
 
 model Register_organization_chart_config {
-  id                           Int                           @id @default(autoincrement())
+  id                           Int      @id @default(autoincrement())
   description                  String
   nb_config_organization_chart String
   name_level_1                 String
   name_level_2                 String
-  name_level_3                 String
-  name_level_4                 String
-  name_level_5                 String
-  name_level_6                 String
+  name_level_3                 String?
+  name_level_4                 String?
+  name_level_5                 String?
+  name_level_6                 String?
   size_level_1                 Int
   size_level_2                 Int
-  size_level_3                 Int
-  size_level_4                 Int
-  size_level_5                 Int
-  size_level_6                 Int
-  separator_level_1            String
-  separator_level_2            String
-  separator_level_3            String
-  separator_level_4            String
-  separator_level_5            String
-  separator_level_6            String
+  size_level_3                 Int?
+  size_level_4                 Int?
+  size_level_5                 Int?
+  size_level_6                 Int?
+  separator_level_1            String?
+  separator_level_2            String?
+  separator_level_3            String?
+  separator_level_4            String?
+  separator_level_5            String?
+  separator_level_6            String?
   required_level_1             Boolean
   required_level_2             Boolean
   required_level_3             Boolean
@@ -362,18 +611,31 @@ model Register_organization_chart_config {
   required_level_6             Boolean
   year                         Int
   start_date                   DateTime
-  Register_organization_chart  Register_organization_chart[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
+  Register_organization_chart Register_organization_chart[]
 
   @@map("register_organization_chart_configs")
 }
 
 model Register_background_type {
-  id                          Int                           @id @default(autoincrement())
-  description                 String
-  nb_tce                      String
-  start_date                  DateTime
-  final_date                  DateTime
+  id          Int       @id @default(autoincrement())
+  description String
+  nb_tce      String
+  start_date  DateTime
+  final_date  DateTime?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  first_user Int?
+  last_user  Int?
+
   Register_organization_chart Register_organization_chart[]
 
+  @@unique([description, nb_tce])
   @@map("register_background_types")
 }

@@ -1,13 +1,13 @@
 import { NextFunction, Response } from "express";
 import { RequestWithUser } from "../protocols/RequestWithUser";
-import { AppError } from "../helper/AppError.js";
 import prismaInstance from "../prisma/client.js";
+import { AppMessage } from "../utils/AppMessage.js";
 
 export function permission(permissionsRoutes: string[]) {
   return async ({ user }: RequestWithUser, res: Response, next: NextFunction) => {
-    if (!user) throw new AppError("Usuário não recebido para as premissões");
+    if (!user) throw new AppMessage("Usuário não recebido para as premissões");
 
-    const userExists = await prismaInstance.prisma().user.findUnique({
+    const userExists = await prismaInstance.prisma().register_user.findUnique({
       where: { document: user.document },
       include: {
         Register_user_role: {
@@ -26,7 +26,7 @@ export function permission(permissionsRoutes: string[]) {
       }
     })
       .catch(() => {
-        throw new AppError('Usuário não encontrado.')
+        throw new AppMessage('Usuário não encontrado.')
       })
 
     const permissionExists = userExists?.Register_user_role.map((role) =>
@@ -35,7 +35,7 @@ export function permission(permissionsRoutes: string[]) {
       )
     )
 
-    if (!permissionExists) throw new AppError("Usuário sem premissão para esta rota.");
+    if (!permissionExists) throw new AppMessage("Usuário sem premissão para esta rota.");
 
     return next();
   }
