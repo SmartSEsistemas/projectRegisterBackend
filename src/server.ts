@@ -1,10 +1,11 @@
 import 'express-async-errors'
-import express, { type NextFunction, type Request, type Response } from 'express'
+import swaggerUi from 'swagger-ui-express';
+import swaggerJSDoc from "swagger-jsdoc";
+import helmet from 'helmet';
+import express, { type NextFunction, type Request, type Response } from 'express';
 import routes from './routes/index.js'
 import { AppMessage } from './utils/AppMessage.js'
 import prismaInstance from './prisma/client.js';
-import swaggerUi from 'swagger-ui-express';
-import swaggerJSDoc from "swagger-jsdoc";
 import { ZodError } from 'zod';
 
 /**
@@ -40,11 +41,11 @@ const swaggerDocs = swaggerJSDoc({
 
 const app = express()
 
+app.use(helmet());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.use(express.json());
 app.use(express.static('upload'));
-// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerConfig))
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.header('Access-Control-Allow-Origin', '*')
@@ -71,7 +72,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next()
 })
 
-
+// Rotas
 app.use(routes)
 
 app.use((err: Error, request: Request, response: Response, next: NextFunction) => {
