@@ -135,7 +135,7 @@ async function seed() {
     .register_user.create({
       data: {
         active: true,
-        document: '02956328107',
+        document: '34577682001',
         password:
           '$2b$10$8U9IVgwXbnIWVsXiHpbdC.3ZIjpsFsZHObMtU.QH63OtnZEdy6bqa',
         register_entity_id: 1,
