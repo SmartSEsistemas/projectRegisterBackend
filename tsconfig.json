@@ -14,7 +14,7 @@
   "include": [
     "src",
     "src/*.d.ts"
-  ],
+, "src/seed.ts"  ],
   "exclude": [
     "node_modules"
   ]
