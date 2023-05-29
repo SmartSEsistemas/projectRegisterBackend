@@ -1,0 +1,1 @@
+{"version":3,"file":"accessRequest.router.js","sourceRoot":"","sources":["../../../../src/routes/login/recoverPassword/accessRequest.router.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,MAAM,SAAS,CAAC;AACjC,OAAO,uBAAuB,MAAM,+DAA+D,CAAC;AAEpG,MAAM,mBAAmB,GAAG,MAAM,EAAE,CAAC;AAErC,mBAAmB,CAAC,IAAI,CAAC,GAAG,EAAE,uBAAuB,CAAC,QAAQ,CAAC,CAAC;AAEhE,eAAe,mBAAmB,CAAC"}

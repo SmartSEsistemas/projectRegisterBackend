@@ -1,0 +1,1 @@
+{"version":3,"file":"organizationChart.router.js","sourceRoot":"","sources":["../../../src/routes/organizationChart/organizationChart.router.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,MAAM,SAAS,CAAC;AACjC,OAAO,eAAe,MAAM,iCAAiC,CAAC;AAE9D,MAAM,iBAAiB,GAAG,MAAM,EAAE,CAAC;AAEnC,iBAAiB,CAAC,GAAG,CAAC,aAAa,EAAE,eAAe,CAAC,CAAC;AAetD,eAAe,iBAAiB,CAAC"}

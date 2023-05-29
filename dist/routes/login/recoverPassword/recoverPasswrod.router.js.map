@@ -1,0 +1,1 @@
+{"version":3,"file":"recoverPasswrod.router.js","sourceRoot":"","sources":["../../../../src/routes/login/recoverPassword/recoverPasswrod.router.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,MAAM,SAAS,CAAC;AACjC,OAAO,wBAAwB,MAAM,gEAAgE,CAAC;AAEtG,MAAM,qBAAqB,GAAG,MAAM,EAAE,CAAC;AAEvC,qBAAqB,CAAC,IAAI,CAAC,GAAG,EAAE,wBAAwB,CAAC,OAAO,CAAC,CAAC;AAElE,eAAe,qBAAqB,CAAC"}

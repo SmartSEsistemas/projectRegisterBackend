@@ -1,0 +1,1 @@
+{"version":3,"file":"PermissionDTO.js","sourceRoot":"","sources":["../../../../src/dto/access/permission/PermissionDTO.ts"],"names":[],"mappings":"AAAA,OAAO,EAAC,CAAC,EAAC,MAAM,KAAK,CAAC;AAEtB,MAAM,CAAC,MAAM,gBAAgB,GAAG,CAAC,CAAC,MAAM,CAAC;IACvC,IAAI,EAAE,CAAC,CAAC,MAAM,EAAE;IAChB,WAAW,EAAE,CAAC,CAAC,MAAM,EAAE;IACvB,SAAS,EAAE,CAAC,CAAC,MAAM,EAAE,CAAC,KAAK,EAAE;CAC9B,CAAC,CAAA"}

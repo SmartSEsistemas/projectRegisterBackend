@@ -1,0 +1,1 @@
+{"version":3,"file":"AppMessage.js","sourceRoot":"","sources":["../../src/utils/AppMessage.ts"],"names":[],"mappings":"AAAA,MAAM,OAAO,UAAU;IACL,OAAO,CAAoB;IAC3B,WAAW,CAAS;IAEpC,YAAY,OAA0B,EAAE,UAAU,GAAG,GAAG;QACtD,IAAI,CAAC,OAAO,GAAG,OAAO,CAAC;QACvB,IAAI,CAAC,WAAW,GAAG,UAAU,CAAC;IAChC,CAAC;CACF"}
