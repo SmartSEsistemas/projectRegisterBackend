@@ -1,5 +1,5 @@
-import { loginSchema } from "../../../dto/login/LoginDTO.js";
-import loginService from "../../../services/login/login/LoginService.js";
+import { loginSchema } from '../../../dto/login/LoginDTO.js';
+import loginService from '../../../services/login/login/LoginService.js';
 class LoginController {
     async token({ body }, res) {
         const data = loginSchema.parse(body);

@@ -15,7 +15,7 @@ export default function isValidCNPJ(cnpj: string) {
     }
   }
   let digit = 11 - (sum % 11);
-  const firstDigit = (digit >= 10) ? 0 : digit;
+  const firstDigit = digit >= 10 ? 0 : digit;
 
   sum = 0;
   weight = 6;
@@ -25,14 +25,12 @@ export default function isValidCNPJ(cnpj: string) {
     if (weight < 2) {
       weight = 9;
     }
- }
- digit = 11 - (sum % 11);
- const secondDigit = (digit >= 10) ? 0 : digit;
+  }
+  digit = 11 - (sum % 11);
+  const secondDigit = digit >= 10 ? 0 : digit;
 
- if (
-   parseInt(cnpj.charAt(12)) !== firstDigit ||
-   parseInt(cnpj.charAt(13)) !== secondDigit
- )  return false;
+  if (parseInt(cnpj.charAt(12)) !== firstDigit || parseInt(cnpj.charAt(13)) !== secondDigit)
+    return false;
 
- return cnpj
+  return true;
 }

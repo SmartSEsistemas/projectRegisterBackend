@@ -19,8 +19,7 @@ class UserService {
           throw new Error('Error ao cadastrar Role.');
         });
     } catch (error: any) {
-      if (error instanceof AppMessage)
-        throw new AppMessage(error.Message, error.Status_code);
+      if (error instanceof AppMessage) throw new AppMessage(error.Message, error.Status_code);
       else throw new AppMessage(error.message, 400);
     } finally {
       await prismaInstance.prisma().$disconnect();
@@ -46,8 +45,7 @@ class UserService {
           throw new AppMessage('Error ao atualizar Role.');
         });
     } catch (error: any) {
-      if (error instanceof AppMessage)
-        throw new AppMessage(error.Message, error.Status_code);
+      if (error instanceof AppMessage) throw new AppMessage(error.Message, error.Status_code);
       else throw new AppMessage(error, 400);
     } finally {
       await prismaInstance.prisma().$disconnect();
@@ -62,6 +60,15 @@ class UserService {
       })
       .catch(() => {
         throw new AppMessage('Error ao pegar Role.');
+      });
+  }
+
+  async list() {
+    return await prismaInstance
+      .prisma()
+      .register_role.findMany()
+      .catch(() => {
+        throw new AppMessage('Error ao pegar Roles.');
       });
   }
 
@@ -112,13 +119,8 @@ class UserService {
       });
 
     if (!role) throw new Error('Role não encontrada');
-    if (
-      role.Register_roles_permission.length > 0 ||
-      role.Register_user_role.length > 0
-    )
-      throw new Error(
-        'Role não pode ser deletada/editada pois já foi referenciada.',
-      );
+    if (role.Register_roles_permission.length > 0 || role.Register_user_role.length > 0)
+      throw new Error('Role não pode ser deletada/editada pois já foi referenciada.');
   }
 }
 

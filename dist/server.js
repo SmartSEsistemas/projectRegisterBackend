@@ -8,7 +8,6 @@ import express from 'express';
 import routes from './routes/index.js';
 import { AppMessage } from './utils/AppMessage.js';
 import db from './prisma/client.js';
-import { limiter } from './middlewares/rateLimit.js';
 const swaggerDocs = swaggerJSDoc({
     definition: {
         openapi: '3.0.0',
@@ -27,10 +26,10 @@ const swaggerDocs = swaggerJSDoc({
     apis: ['./src/routes/**/*.ts'],
 });
 const app = express();
-const whitelist = ['http://localhost:3000', process.env.AUTHORIZED];
+const whitelist = ['http://localhost:3000'];
 const corsOptions = {
-    origin: function (origin, callback) {
-        if (whitelist.includes(origin)) {
+    origin: (origin, callback) => {
+        if (origin && whitelist.includes(origin)) {
             callback(null, true);
         }
         else {
@@ -38,9 +37,8 @@ const corsOptions = {
         }
     },
 };
-app.use(limiter);
-app.use(helmet());
 app.use(cors(corsOptions));
+app.use(helmet());
 app.use(express.json());
 app.use(express.static('upload'));
 app.use((req, res, next) => {
@@ -57,9 +55,9 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
     const database = req.get('database-name');
     if (database === undefined)
-        throw new AppMessage('Nome do banco de dados não enviado');
+        throw new AppMessage('Nome do banco de dados não enviado', 400);
     db.setDB(database);
-    next();
+    return next();
 });
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use(routes);
@@ -67,7 +65,7 @@ app.use((err, request, response, next) => {
     if (err instanceof AppMessage)
         return response.status(err.Status_code).json(err);
     if (err instanceof ZodError) {
-        const messages = JSON.parse(err.message).map((error) => `${error.path[0]}: ${error.message}`);
+        const messages = JSON.parse(err.message).map((error) => `${error.path[0]}${error.path[1] ? ' - ' + error.path[1] : ''}: ${error.message}`);
         return response.status(400).json(new AppMessage(messages));
     }
     return response.status(500).json({
@@ -75,7 +73,7 @@ app.use((err, request, response, next) => {
         Message: `Internal server error - ${err.message}`,
     });
 });
-app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT ?? 3333, () => {
     console.log('Rodando na porta 3333');
 });
 //# sourceMappingURL=server.js.map

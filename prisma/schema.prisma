@@ -35,10 +35,10 @@ enum Power {
 }
 
 enum Types {
-  INSERIR
-  EDITAR
-  REMOVER
-  VISUALIZAR
+  INSERT
+  UPDATE
+  DELETE
+  SHOW
 }
 
 // Person

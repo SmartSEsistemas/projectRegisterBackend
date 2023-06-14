@@ -19,6 +19,6 @@ export const naturalPersonSchema = z.object({
     state_uf_id: z.number(),
     email: z.string(),
     phone: z.string(),
-    register_date: z.coerce.date()
+    register_date: z.coerce.date(),
 });
 //# sourceMappingURL=NaturalPersonDTO.js.map

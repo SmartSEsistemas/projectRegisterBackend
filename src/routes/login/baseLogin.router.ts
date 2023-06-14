@@ -6,12 +6,7 @@ import loginRouter from './login/login.router.js';
 
 const baseLoginRouter = Router();
 
-baseLoginRouter.use(
-  '/access_request',
-  authentication.required,
-  accessRequestRouter,
-);
-
+baseLoginRouter.use('/access_request', accessRequestRouter);
 baseLoginRouter.use('/recover', recoverPasswordRouter);
 baseLoginRouter.use('/', loginRouter);
 

@@ -1,11 +1,7 @@
 export default function isValidCPF(cpf) {
-    const result = {
-        valid: true,
-        value: ''
-    };
-    result.value = cpf.replace(/[^\d]+/g, '');
+    cpf = cpf.replace(/[^\d]+/g, '');
     if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf))
-        result.valid = false;
+        return false;
     let soma = 0;
     for (let i = 0; i < 9; i++) {
         soma += parseInt(cpf.charAt(i)) * (10 - i);
@@ -14,7 +10,7 @@ export default function isValidCPF(cpf) {
     if (resto === 10 || resto === 11)
         resto = 0;
     if (resto !== parseInt(cpf.charAt(9)))
-        result.valid = false;
+        return false;
     soma = 0;
     for (let i = 0; i < 10; i++) {
         soma += parseInt(cpf.charAt(i)) * (11 - i);
@@ -23,7 +19,7 @@ export default function isValidCPF(cpf) {
     if (resto === 10 || resto === 11)
         resto = 0;
     if (resto !== parseInt(cpf.charAt(10)))
-        result.valid = false;
-    return result;
+        return false;
+    return true;
 }
 //# sourceMappingURL=isValidCPF.js.map

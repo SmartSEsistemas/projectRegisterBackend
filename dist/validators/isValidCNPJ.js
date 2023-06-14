@@ -14,7 +14,7 @@ export default function isValidCNPJ(cnpj) {
         }
     }
     let digit = 11 - (sum % 11);
-    const firstDigit = (digit >= 10) ? 0 : digit;
+    const firstDigit = digit >= 10 ? 0 : digit;
     sum = 0;
     weight = 6;
     for (let i = 0; i < 13; i++) {
@@ -25,10 +25,9 @@ export default function isValidCNPJ(cnpj) {
         }
     }
     digit = 11 - (sum % 11);
-    const secondDigit = (digit >= 10) ? 0 : digit;
-    if (parseInt(cnpj.charAt(12)) !== firstDigit ||
-        parseInt(cnpj.charAt(13)) !== secondDigit)
+    const secondDigit = digit >= 10 ? 0 : digit;
+    if (parseInt(cnpj.charAt(12)) !== firstDigit || parseInt(cnpj.charAt(13)) !== secondDigit)
         return false;
-    return cnpj;
+    return true;
 }
 //# sourceMappingURL=isValidCNPJ.js.map

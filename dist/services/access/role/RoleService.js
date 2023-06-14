@@ -66,6 +66,14 @@ class UserService {
             throw new AppMessage('Error ao pegar Role.');
         });
     }
+    async list() {
+        return await prismaInstance
+            .prisma()
+            .register_role.findMany()
+            .catch(() => {
+            throw new AppMessage('Error ao pegar Roles.');
+        });
+    }
     async delete(role_id) {
         try {
             const foundRole = await this.get(role_id);
@@ -113,8 +121,7 @@ class UserService {
         });
         if (!role)
             throw new Error('Role não encontrada');
-        if (role.Register_roles_permission.length > 0 ||
-            role.Register_user_role.length > 0)
+        if (role.Register_roles_permission.length > 0 || role.Register_user_role.length > 0)
             throw new Error('Role não pode ser deletada/editada pois já foi referenciada.');
     }
 }

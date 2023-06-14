@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import { loginSchema } from "../../../dto/login/LoginDTO.js";
-import loginService from "../../../services/login/login/LoginService.js";
+import { Request, Response } from 'express';
+import { loginSchema } from '../../../dto/login/LoginDTO.js';
+import loginService from '../../../services/login/login/LoginService.js';
 
 class LoginController {
   async token({ body }: Request, res: Response) {

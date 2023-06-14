@@ -5,8 +5,10 @@ class OrganizationChartService {
         try {
             await this.checkIds(permission);
             if (await this.findPermission(permission))
-                throw new Error("Permissão já cadastrada.");
-            await prismaInstance.prisma().register_permission.create({
+                throw new Error('Permissão já cadastrada.');
+            await prismaInstance
+                .prisma()
+                .register_permission.create({
                 data: {
                     ...permission,
                     first_user: user_id,
@@ -14,9 +16,12 @@ class OrganizationChartService {
                         create: permission.roles_ids.map((id) => ({
                             Register_role: { connect: { id } },
                         })),
-                    }
-                }
-            }).catch(() => { throw new Error("Error ao cadastrar Permissão."); });
+                    },
+                },
+            })
+                .catch(() => {
+                throw new Error('Error ao cadastrar Permissão.');
+            });
         }
         catch (error) {
             if (error instanceof AppMessage)
@@ -32,7 +37,9 @@ class OrganizationChartService {
         try {
             await this.checkPermission(permission_name);
             await this.checkIds(permission);
-            await prismaInstance.prisma().register_permission.update({
+            await prismaInstance
+                .prisma()
+                .register_permission.update({
                 where: { name: permission_name },
                 data: {
                     ...permission,
@@ -41,12 +48,15 @@ class OrganizationChartService {
                         createMany: {
                             data: permission.roles_ids.map((id) => ({
                                 register_role_id: id,
-                                first_user: user_id
+                                first_user: user_id,
                             })),
-                        }
-                    }
-                }
-            }).catch(() => { throw new AppMessage("Error ao atualizar Permissão."); });
+                        },
+                    },
+                },
+            })
+                .catch(() => {
+                throw new AppMessage('Error ao atualizar Permissão.');
+            });
         }
         catch (error) {
             if (error instanceof AppMessage)
@@ -59,17 +69,46 @@ class OrganizationChartService {
         }
     }
     async get(permission_name) {
-        return await prismaInstance.prisma().register_permission.findUnique({
-            where: { name: permission_name }
+        return await prismaInstance
+            .prisma()
+            .register_permission.findUnique({
+            where: { name: permission_name },
         })
-            .catch(() => { throw new AppMessage("Error ao pegar Permissão."); });
+            .catch(() => {
+            throw new AppMessage('Error ao pegar Permissão.');
+        });
+    }
+    async list() {
+        return await prismaInstance
+            .prisma()
+            .register_permission.findMany({
+            select: {
+                id: true,
+                name: true,
+                description: true,
+                Register_role_permission: {
+                    select: {
+                        id: true,
+                        Register_role: true,
+                    },
+                },
+            },
+        })
+            .catch(() => {
+            throw new AppMessage('Error ao pegar Permissões.');
+        });
     }
     async delete(permission_name) {
         try {
             await this.checkPermission(permission_name);
-            await prismaInstance.prisma().register_permission.delete({
-                where: { name: permission_name }
-            }).catch(() => { throw new Error('Error ao deletar Permissão.'); });
+            await prismaInstance
+                .prisma()
+                .register_permission.delete({
+                where: { name: permission_name },
+            })
+                .catch(() => {
+                throw new Error('Error ao deletar Permissão.');
+            });
         }
         catch (error) {
             throw new AppMessage(error.message, 400);
@@ -79,28 +118,37 @@ class OrganizationChartService {
         }
     }
     async findPermission(permission) {
-        return await prismaInstance.prisma().register_permission.findUnique({ where: { name: permission.name } })
-            .catch(() => { throw new Error("Error ao procurar Permission"); });
+        return await prismaInstance
+            .prisma()
+            .register_permission.findUnique({ where: { name: permission.name } })
+            .catch(() => {
+            throw new Error('Error ao procurar Permission');
+        });
     }
     async checkPermission(name) {
-        const organizationChart = await prismaInstance.prisma().register_permission.findUnique({
+        const organizationChart = await prismaInstance
+            .prisma()
+            .register_permission.findUnique({
             where: { name },
             select: {
                 Register_role_permission: true,
-            }
-        }).catch(() => { throw new Error('Error ao pegar Permissão para deletar/editar.'); });
+            },
+        })
+            .catch(() => {
+            throw new Error('Error ao pegar Permissão para deletar/editar.');
+        });
         if (!organizationChart)
             throw new Error('Permissão não encontrada');
         if (organizationChart.Register_role_permission.length > 0)
-            throw new Error("Permissão não pode ser deletada/editada pois já foi referenciada.");
+            throw new Error('Permissão não pode ser deletada/editada pois já foi referenciada.');
     }
     async checkIds({ roles_ids }) {
         const roles = await prismaInstance.prisma().register_role.findMany({
             where: {
                 id: {
-                    in: roles_ids
-                }
-            }
+                    in: roles_ids,
+                },
+            },
         });
         const errors = [];
         roles_ids.map((id) => {
